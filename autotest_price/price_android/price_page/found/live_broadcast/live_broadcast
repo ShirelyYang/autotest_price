@@ -1,0 +1,271 @@
+import re
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class LiveBroadcast(BasePage):
+    # 直播-经销商直播
+    def broadcast(self):
+        # 选择第一条直播中的 经销商视频
+        videos = self.finds(by="id", locator='live_image_iv')
+        # video = self.find(by="id", locator='live_image_iv')
+        # 在直播列表页，获取直播视频的销售信息
+        # sale_name = self.find(by="id", locator="live_author_name").text
+        sale_name_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/live_title"]/'
+                                                                 '..//*[@resource-id="com.yiche.price:id/'
+                                                                 'live_author_name"]', rx=0.5, ry1=0.8, ry2=0.4,
+                                             num=100)
+        sale_name = sale_name_ele.text
+        # i = 0
+        # while "-" not in sale_name:
+        #     sale_name = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/live_title"]/'
+        #                                                             '..//*[@resource-id="com.yiche.price:id/'
+        #                                                             'live_author_name"]', rx=0.5, ry1=0.8, ry2=0.4,
+        #                                         num=100).text
+        #     i += 1
+        # videos[1].click()
+        # video.click()
+        sale_name_ele.click()
+        sleep(3)
+        # 获取直播详情页面销售信息
+        sale = self.find(by="id", locator="user").text
+        return sale_name, sale
+
+    # 直播-评论
+    def broadcast_comment(self):
+        # 选择第一条直播中的 视频
+        # self.find(by="id", locator='live_image_iv').click()
+        # 选择评论文本框
+        self.find(by="id", locator="commentTv").click()
+        self.find(by="id", locator="sns_comment_content").send_keys("来了")
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        msg = self.get_toast()
+        return msg
+
+    # 直播-相关车型-询底价
+    def broadcast_car_ask_price(self):
+        # 选择第一条直播中的 视频
+        # self.find(by="id", locator='live_image_iv').click()
+        self.find(by="id", locator='carTv').click()
+        self.find(by="id", locator='car_ask').click()
+        sleep(3)
+        btn = self.find(by="id", locator='askprice_txt_bottom').text
+        self.back()
+        return btn
+
+    # 直播-相关车型
+    def broadcast_car(self):
+        # 选择第一条直播中的 视频
+        # self.find(by="id", locator='live_image_iv').click()
+        self.find(by="id", locator='carTv').click()
+        car_name_ele = self.find(by="id", locator='car_name')
+        car_name = car_name_ele.text
+        car_name_ele.click()
+        sleep(3)
+        brandtype_serial_name = self.find(by="id", locator="brandtype_serial_name").text
+        self.back()
+        return car_name, brandtype_serial_name
+
+    # 直播-相关车型-经销商
+    def broadcast_car_dealer(self):
+        dealers = self.find(by="id", locator="dealer_name").text
+        self.find(by="id", locator='dealer_btn').click()
+        sleep(3)
+        dealer_name_detail = self.find(by="id", locator="dealer_name").text
+        self.back()
+        self.back()
+        return dealers, dealer_name_detail
+
+    # 直播-点赞
+    def broadcast_like(self):
+        like_ele = self.find(by="id", locator="like_img")
+        count = int(like_ele.text)
+        like_ele.click()
+        count_liked = int(like_ele.text)
+        return count, count_liked
+
+    # 直播-分享
+    def broadcast_share(self):
+        self.find(by="id", locator="share").click()
+        sleep(3)
+        weixin = self.find(by="id", locator="shareto_weixin").text
+        self.back()
+        self.back()
+        return weixin
+
+    # 预告
+    def advance_notice(self):
+        # 查找预告视频
+        advance = self.base_srcoll_up_down(by="xpath",
+                                 locator='//*[@resource-id="com.yiche.price:id/center_time_tv" and contains(@text, "开播")]',
+                                 rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 获取预告 下的 销售姓名
+        sale_name = self.base_srcoll_up_down(by="xpath",
+                                             locator='//*[@resource-id="com.yiche.price:id/center_time_tv" '
+                                                     'and contains(@text, "开播")]/../../../..'
+                                                     '//*[@resource-id="com.yiche.price:id/live_author_name"]',
+                                             rx=0.5, ry1=0.8, ry2=0.4,
+                                             num=100).text
+        advance.click()
+        sleep(3)
+        sale_name_detail = self.find(by="id", locator="user").text
+        return sale_name, sale_name_detail
+
+    # 预告-预约直播
+    def advance_notice_appointment(self):
+        self.base_srcoll_up_down(by="xpath",
+                                           locator='//*[@resource-id="com.yiche.price:id/center_time_tv" and contains(@text, "开播")]',
+                                           rx=0.5, ry1=0.8, ry2=0.4, num=100).click()
+
+        # 预约前人数
+        count_ele = self.find(by="id", locator="notice_bt_txt2")
+        count = int(re.findall(r'\d+', count_ele.text)[0])
+        # 点击预约
+        self.find(by="id", locator="notice_bt_txt1").click()
+        # 预约后的人数
+        count_appointed = int(re.findall(r'\d+', count_ele.text)[0])
+        self.back()
+        return count, count_appointed
+
+    # 重播
+    def reply(self):
+        # 在预告基础上查找重播视频
+        reply = advance = self.base_srcoll_up_down(by="xpath",
+                                 locator='//*[@resource-id="com.yiche.price:id/live_count" and contains(@text, "观看")]',
+                                 rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 获取重播销售信息
+        sale_name = self.base_srcoll_up_down(by="xpath",
+                                             locator='//*[@resource-id="com.yiche.price:id/live_count" '
+                                                     'and contains(@text, "观看")]/../../../..'
+                                                     '//*[@resource-id="com.yiche.price:id/live_author_name"]',
+                                             rx=0.5, ry1=0.8, ry2=0.4,
+                                             num=100).text
+        reply.click()
+        sleep(3)
+        sale_name_detail = self.find(by="id", locator="user").text
+        return sale_name, sale_name_detail
+
+    # 重播-评论
+    def reply_comment(self):
+        pass
+
+    # 进入报价大全tab
+    def goto_price_app(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="进入报价大全"]').click()
+        sleep(3)
+        live_title_ele = self.find(by="id", locator="live_title")
+        live_title = live_title_ele.text
+        live_title_ele.click()
+        zb_title = self.find(by="id", locator="zb_title").text
+        return live_title, zb_title
+
+    # 进入报价大全tab-关注
+    def goto_price_app_follow(self):
+        btn = self.find(by="id", locator="btn")
+        if btn.text == "已关注":
+            btn.click()
+        btn.click()
+        msg = self.get_toast()
+        return msg
+
+    # 进入报价大全tab-主播主页
+    def goto_price_app_anchor(self):
+        username_ele = self.find(by="id", locator="username")
+        username = username_ele.text
+        username_ele.click()
+        sleep(3)
+        title_tv = self.find(by="id", locator="title_tv").text
+        self.back()
+        return username, title_tv
+
+    # 进入报价大全tab-评论
+    def goto_price_app_comment(self):
+        self.find(by="id", locator="comment_edit").click()
+        comment = "不错诶"
+        self.find(by="id", locator="sns_comment_content").send_keys(comment)
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        content = self.find(by="id", locator="chat_content_tv").text
+        self.back()
+        return comment, content
+
+    # 进入报价大全tab-点赞
+    def goto_price_app_like(self):
+        # 获取点赞元素
+        like_ele = self.find(by="id", locator="like_img")
+        count = int(like_ele.text)
+        like_ele.click()
+
+    # 品牌直播
+    def brand(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="品牌直播"]').click()
+        sleep(3)
+        # 选择品牌
+        self.find(by="id", locator="name").click()
+        sleep(3)
+        self.find(by="xpath", locator='//*[@text="比亚迪"]').click()
+        video = self.base_srcoll_up_down(by="id", locator="live_title", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        sale_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/live_title"]'
+                                                                '/..//*[@resource-id="com.yiche.price:id'
+                                                                '/live_author_name"]', rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        sale = sale_ele.text
+        video.click()
+        sale_name = self.find(by="id", locator="user").text
+        self.back()
+        return sale, sale_name
+
+    # 选车
+    def select_car(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="选车"]').click()
+        sleep(3)
+        title_ele = self.base_srcoll_up_down(by="id", locator="live_title", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        title = title_ele.text
+        title_ele.click()
+        sleep(3)
+        title_detail = self.find(by="id", locator="notice_name").text
+        self.back()
+        return title, title_detail
+
+    # 新车
+    def new_car(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="新车"]').click()
+        sleep(3)
+        video = self.base_srcoll_up_down(by="id", locator="live_title", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        sale_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/live_title"]'
+                                                                '/..//*[@resource-id="com.yiche.price:id'
+                                                                '/live_author_name"]', rx=0.5, ry1=0.8, ry2=0.6,
+                                            num=100)
+        sale = sale_ele.text
+        video.click()
+        sale_name = self.find(by="id", locator="user").text
+        self.back()
+        return sale, sale_name
+
+    # 活动
+    def activity(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="活动"]').click()
+        sleep(3)
+        video = self.base_srcoll_up_down(by="id", locator="live_title", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        sale_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/live_title"]'
+                                                                '/..//*[@resource-id="com.yiche.price:id'
+                                                                '/live_author_name"]', rx=0.5, ry1=0.8, ry2=0.6,
+                                            num=100)
+        sale = sale_ele.text
+        video.click()
+        sale_name = self.find(by="id", locator="user").text
+        self.back()
+        return sale, sale_name
+
+    # 经销商直播
+    def dealers(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="经销商直播"]').click()
+        sleep(3)
+        self.find(by="id", locator="live_city").click()
+        self.find(by="xpath", locator='//*[@text="上海"]').click()
+        title_ele = self.base_srcoll_up_down(by="id", locator="live_title", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        title = title_ele.text
+        title_ele.click()
+        sleep(3)
+        title_detail = self.find(by="id", locator="notice_name").text
+        self.back()
+        return title, title_detail
