@@ -1,0 +1,138 @@
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class Video(BasePage):
+    def goto_video_detail(self):
+        # 点击第一条视频，进入详情页
+        self.find(by="id", locator="ivlTvTitle").click()
+
+    # 点赞
+    def video_detail_like(self):
+        self.goto_video_detail()
+        # 获取点赞元素
+        like_ele = self.find(by="id", locator="iv_video_detail_dz")
+        like_ele.click()
+        # 获取点赞数
+        count = self.find(by="id", locator="tv_video_detail_dz").text
+        return count
+
+    # 相关推荐-车型
+    def video_detail_car(self):
+        # 获取推荐车型名称
+        car_ele = self.find(by="id", locator="ivcrTvName")
+        car_name = car_ele.text
+        car_ele.click()
+        sleep(3)
+        # 车型综述页车型名称
+        brandtype_serial_name = self.find(by="id", locator="brandtype_serial_name").text
+        self.back()
+        return car_name, brandtype_serial_name
+
+    # 相关推荐-车型-询底价
+    def video_detail_car_ask_price(self):
+        # 滚动查找 推荐车型下方的询底价按钮
+        self.base_srcoll_up_down(by="id", locator="ivcrTvBtn", rx=0.5, ry1=0.8, ry2=0.4, num=100).click()
+        sleep(3)
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        return btn
+
+    # 相关推荐-视频
+    def video_video(self):
+        # 滚动查找 推荐视频标题
+        # video_ele = self.base_srcoll_up_down(by="id", locator="ivrTvTitle", rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        video_ele = self.base_scroll("resourceId", "com.yiche.price:id/ivrTvTitle")
+        title = video_ele.text
+        video_ele.click()
+        sleep(3)
+        # 获取标题详情页标题
+        title_detail = self.find(by="id", locator="video_title").text
+        self.back()
+        return title, title_detail
+
+    # 主评论
+    def comment(self):
+
+        # self.goto_video_detail()
+
+        # 获取评论前的评论总数
+        count_eles = self.finds(by="xpath", locator='//*[@resource-id="com.yiche.price:id/fvdiDcvComment"]'
+                                                    '//*[@class="android.widget.TextView"]')
+        count_ele = count_eles[2]
+        if count_ele.text == "评论":
+            count = 0
+        else:
+            count = int(count_ele.text)
+
+        # 点击底部文本框
+        # 10.12.5以前的功能代码
+        # self.find(by="id", locator="eet_video_comment_edit").click()
+        # 10.12.5以后的功能代码（包括10.12.5）
+        self.finds(by="xpath", locator='//*[@resource-id="com.yiche.price:id/fvdiDcvComment"]'
+                                       '//*[@class="android.widget.TextView"]')[1].click()
+        # 输入评论内容
+        comment = "我喜欢这个车型"
+        username = "大全儿6359微博"
+        self.find(by="id", locator="comment_content").send_keys(comment)
+        self.find(by="id", locator="comment_send_imgbtn").click()
+
+        # 获取 toast
+        # msg = self.get_toast()
+        # msg = self.get_toast_by_text("评论成功!")
+        # 查找热门评论标题
+        # self.base_scroll("resourceId", "com.yiche.price:id/ivrTvTitle")
+        # self.base_srcoll_up_down(by="id", locator="cvhTvCommentFlag", rx=0.5, ry1=0.7, ry2=0.4, num=100)
+        # self.base_srcoll_up_down(by="id", locator="iddcTvName", rx=0.5, ry1=0.7, ry2=0.4, num=100)
+        # self.base_scroll_up_down_long_press(by="id", locator="cvhTvCommentFlag", rx=0.5, ry1=0.7, ry2=0.4, num=100)
+        # self.base_scroll("resourceId", "com.yiche.price:id/cvhTvCommentFlag")
+        # 查找自己发表的评论
+        # comment_search = self.base_srcoll_up_down(by="xpath",
+        #                                           locator=f'//*[@text="{username}"]/..//'
+        #                                                   '*[@resource-id="com.yiche.price:id/iddcTvContent"]',
+        #                                           rx=0.5, ry1=0.8, ry2=0.4, num=100).text
+
+        # 获取评论后的评论总数
+        count_commented_eles = self.finds(by="xpath", locator='//*[@resource-id="com.yiche.price:id/fvdiDcvComment"]'
+                                                   '//*[@class="android.widget.TextView"]')
+        count_commented_ele = count_commented_eles[2]
+        count_commented = int(count_commented_ele.text)
+
+        # return comment, comment_search
+        # return msg
+        return count, count_commented
+
+    # 全部评论
+    def comment_all(self):
+        # 点击全部评论icon
+        self.find(by="id", locator="iv_video_comment").click()
+        sleep(5)
+        comment = "我喜欢这个车型"
+        username = "大全儿6359微博"
+
+        # 获取评论内容
+        content = self.base_srcoll_up_down(by="xpath", locator=f'//*[@text="{username}"]/'
+                                                               '..//*[@resource-id="com.yiche.price:id/iddcTvContent"]',
+                                           rx=0.5, ry1=0.8, ry2=0.5, num=100).text
+        self.back()
+        return comment, content
+
+    # 收藏
+    def collection(self):
+        # self.goto_video_detail()
+        collect_ele = self.finds(by="xpath", locator='//*[@resource-id="com.yiche.price:id/fvdiDcvComment"]'
+                                                    '//*[@class="android.widget.ImageView"]')[1]
+        if collect_ele.is_selected():
+            collect_ele.click()
+        collect_ele.click()
+        msg = self.get_toast()
+        return msg
+
+    # 分享
+    def share(self):
+        self.find(by="id", locator="iv_video_share").click()
+        sleep(3)
+        share_text = self.find(by="id", locator="tv_1").text
+        self.back()
+        return share_text
