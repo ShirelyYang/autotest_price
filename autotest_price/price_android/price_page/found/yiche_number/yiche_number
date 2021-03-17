@@ -1,0 +1,29 @@
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class YicheNumber(BasePage):
+    # 选择新闻
+    def news(self):
+        # 点击新闻
+        news = self.base_srcoll_up_down(by="id", locator="news_title", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        title = news.text
+        news.click()
+        sleep(3)
+        title_detail = self.find(by="xpath", locator='//*[@class="android.view.View"]//*[@class="android.view.View"]').text
+        # self.back()
+        return title, title_detail
+
+    # 选择视频
+    def video(self):
+        video = self.base_srcoll_up_down(by="id", locator="video_start_view", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        title_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/video_start_view"]'
+                                                             '/../../../../../..'
+                                                             '//*[@resource-id="com.yiche.price:id/news_title"]',
+                                         rx=0.5, ry1=0.6, ry2=0.8, num=100)
+        title = title_ele.text
+        title_ele.click()
+        sleep(3)
+        title_detail = self.find(by="id", locator="video_title").text
+        return title, title_detail
