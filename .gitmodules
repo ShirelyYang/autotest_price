@@ -1,0 +1,3 @@
+[submodule "autotest_price_git"]
+	path = autotest_price_git
+	url = git@github.com:ShirelyYang/autotest_price_git.git
