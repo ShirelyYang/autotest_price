@@ -1,0 +1,431 @@
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class SmallVideo(BasePage):
+    # 点击进入小视频详情页
+    def goto_small_video_detail(self):
+        self.find(by="id", locator="video_img").click()
+
+    # 收藏
+    def collection(self):
+        self.goto_small_video_detail()
+        # 获取收藏元素
+        collection_ele = self.find(by="id", locator="iv_short_video_title_fav")
+        # 判断是否已收藏
+        if collection_ele.is_selected():
+            # 已收藏，点击收藏icon，取消收藏
+            collection_ele.click()
+        # 点击收藏icon
+        collection_ele.click()
+        # 判断收藏icon状态
+        colection_selected = self.find(by="id", locator="iv_short_video_title_fav")
+        return colection_selected.is_selected()
+
+    # 更多分享
+    def more_share(self):
+        self.goto_small_video_detail()
+        # 点击分享元素
+        self.find(by="id", locator="iv_short_video_title_more").click()
+        # 获取分享弹窗中的微信好友元素
+        shareto_weixin = self.find(by="id", locator="shareto_weixin")
+        weixin = shareto_weixin.text
+        # 点击取消，回到小视频页面
+        self.find(by="id", locator="dialogshare_btn_cancel").click()
+        self.back()
+        return weixin
+
+    # 进入销售详情页面
+    def goto_sale_detail(self):
+        self.goto_small_video_detail()
+        # 获取销售名称
+        sale_name = self.find(by="id", locator="fsviTvSaleName").text
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        sleep(3)
+        # 获取详情页销售名称
+        name = self.find(by="id", locator="title_tv").text
+        self.back()
+        return sale_name, name
+
+    # 销售详情页-微聊
+    def sale_detail_chat(self):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 获取详情页销售名称
+        name = self.find(by="id", locator="title_tv").text
+        # 点击微聊
+        self.find(by="id", locator="dowl").click()
+        sleep(3)
+        # 获取微聊界面title
+        title = self.find(by="id", locator="title_center_txt").text
+        self.back()
+        self.back()
+        return name, title
+
+    # 销售详情页-关注
+    def sale_detail_focus(self):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 判断是否已关注
+        focus_ele = self.find(by="id", locator="doatt")
+        focus = focus_ele.text
+        # 如果已关注，点击取消关注
+        if focus == "已关注":
+            focus_ele.click()
+        # 点击关注
+        focus_ele.click()
+        msg = self.get_toast()
+        self.back()
+        return msg
+
+    # 销售详情页-查看粉丝
+    def sale_detial_fans(self):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 点击关注
+        self.find(by="id", locator="att_tv").click()
+        # 切换至 TA的粉丝 tab
+        self.find(by="xpath", locator='//*[@text="TA的粉丝"]').click()
+        # 获取最新的粉丝，即当前用户
+        name = self.find(by="id", locator="username").text
+        self.back()
+        self.back()
+        return name
+
+    # 销售详情页-话题-获取第一条话题及对应元素
+    def sale_detail_get_topic(self, attr, ele_id):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 点击话题 tab
+        self.find(by="xpath", locator='//*[contains(@text, "TA的话题")]').click()
+        # 获取第一条话题
+        topic = self.find(by="id", locator="topic_content")
+        topic_content = topic.text
+        # 获取该话题下的 点赞 元素
+        # ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/topic_content"]'
+        #                                                          f'/../..//*[@{attr}="{ele_id}"]',
+        #                                      rx=0.5, ry1=0.6, ry2=0.4)
+        ele = self.base_srcoll_up_down(by="xpath", locator=f'//*[@text="{topic_content}"]'
+                                                           f'/../..//*[@{attr}="{ele_id}"]',
+                                       rx=0.5, ry1=0.6, ry2=0.4, num=100)
+        return ele
+
+    # 销售详情页-话题-点赞
+    def sale_detail_topic_like(self):
+        # 获取该话题下的 点赞 元素
+        count_ele = self.sale_detail_get_topic("resource-id", "com.yiche.price:id/count")
+        img_like= self.find(by="id", locator="img")
+        # 点击点赞前的 点赞数
+        count = int(count_ele.text)
+        # 点击点赞元素
+        img_like.click()
+        # 获取点赞后的 点赞数
+        count_ele_like = self.find(by="id", locator="count")
+        count_like = int(count_ele_like.text)
+        # 如果点赞前小于点赞后，说明是点赞操作， 点击点赞icon后的数值必然大于点赞前
+        if count < count_like:
+            self.back()
+            return count, count_like
+        # 如果点赞前的数值小于点赞后，说明是取消点赞操作， 点击点赞icon后的数值必然小于点赞前
+        else:
+            self.back()
+            return count_like, count
+
+    # 销售详情页-话题-评论
+    def sale_detail_topic_comment(self):
+        # 获取该话题下的 评论 元素
+        count_ele = self.sale_detail_get_topic("resource-id", "com.yiche.price:id/icon_txt")
+        count_ele.click()
+        # 点击评论文本框，输入评论
+        self.find(by="id", locator="sns_comment_content").send_keys("真不错")
+        # 发送评论
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        toast_img = self.get_toast()
+        self.back()
+        return toast_img
+
+    # 销售详情页-话题-关联车型
+    def sale_detail_topic_car(self):
+        # 获取该话题下的 主体 元素
+        self.sale_detail_get_topic("resource-id", "com.yiche.price:id/sns_cartype_layout")
+        # 获取该话题下的 关联车型 元素
+        car = self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/sns_cartype_layout"]'
+                                            '//*[@class="android.widget.TextView"]')
+        car_name = car.text
+        car.click()
+        sleep(3)
+        # 获取综述页车型名称
+        brandtype_serial_name = self.find(by="id", locator="brandtype_serial_name").text
+        self.back()
+        self.back()
+        return car_name, brandtype_serial_name
+
+    # 销售详情页-TA的评论
+    def sale_detail_salecomment(self):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 点击TA的评论 tab
+        title_ele = self.find(by="xpath", locator='//*[contains(@text, "TA的评论")]')
+        title = title_ele.text
+        title_ele.click()
+        # 如果评论为0，获取评论为0 的页面信息
+        if "0" in title:
+            empty_text = self.find(by="id", locator="empty_text").text
+            self.back()
+            return empty_text
+        # 如果评论不为0，返回具体评论信息，遇到再补充
+
+    # 销售详情页-发布话题
+    def sale_datail_post_topic(self):
+        self.goto_small_video_detail()
+        # 点击销售头像
+        self.find(by="id", locator="fsvIvHead").click()
+        # 点击发布话题按钮
+        self.find(by="id", locator="opentopic").click()
+        # 选择图文
+        self.find(by="xpath", locator='//*[@text="图文"]').click()
+        # 输入要发布的文字
+        self.find(by="id", locator="sns_post_contetn_edt").send_keys("测试测试测试")
+        # 添加图片
+        self.find(by="id", locator="sns_img_iv").click()
+        # 选择相册中的第一张图片
+        self.find(by="id", locator="selected_album").click()
+        self.find(by="xpath", locator='//*[@text="cars"]').click()
+        self.find(by="id", locator="media_thumbnail").click()
+        sleep(3)
+        self.find(by="id", locator="com.yiche.price:id/check_view").click()
+        self.find(by="id", locator="button_apply").click()
+        # 添加车型
+        self.find(by="id", locator="tv_cartype_text").click()
+        self.find(by="xpath", locator='//*[@text="奥迪"]').click()
+        self.find(by="xpath", locator='//*[@text="奥迪Q3"]').click()
+        # 发布
+        self.find(by="id", locator="title_right_btn").click()
+        # 获取toast
+        toast_msg = self.get_toast()
+        self.back()
+        return toast_msg
+
+    # 小视频详情页-点赞
+    def small_video_like(self):
+        self.goto_small_video_detail()
+        # 获取点赞icon
+        like_icon = self.find(by="id", locator="iv_short_video_like")
+        # 获取点击点赞icon前的点赞数
+        count_ele = self.find(by="id", locator="tv_short_video_like_count")
+        count = int(count_ele.text)
+        # 点击点赞icon
+        like_icon.click()
+        # 获取点击点赞icon后的点赞数
+        count_ele_liked = self.find(by="id", locator="tv_short_video_like_count")
+        count_liked = int(count_ele_liked.text)
+        # 如果点赞前小于点赞后，说明是点赞操作， 点击点赞icon后的数值必然大于点赞前
+        if count < count_liked:
+            self.back()
+            return count, count_liked
+        # 如果点赞前的数值小于点赞后，说明是取消点赞操作， 点击点赞icon后的数值必然小于点赞前
+        else:
+            self.back()
+            return count_liked, count
+
+    # 小视频详情页-评论
+    def small_video_comment(self):
+        self.goto_small_video_detail()
+        sleep(3)
+        # 获取评论 icon
+        # eles = self.finds(by="xpath", locator='//*[@class="android.widget.ImageView"]')
+        comment_ele = self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/tv_short_video_comment_count"]'
+                                                    '/..//*[@class="android.widget.ImageView"]')
+        # 获取评论前的评论数
+        # count_ele = self.find(by="id", locator="tv_short_video_comment_count")
+        # count = int(count_ele.text)
+        # 点击评论 icon
+        comment_ele.click()
+        # 输入评论
+        content = "不错诶"
+        self.find(by="id", locator="comment_edit").click()
+        self.find(by="id", locator="sns_comment_content").send_keys(content)
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        sleep(3)
+        # 查看评论完 文本框中的提示信息
+        msg = self.find(by="id", locator="comment_edit").text
+        self.back()
+        self.back()
+        return msg
+
+    # 小视频详情页-分享
+    def small_video_share(self):
+        self.goto_small_video_detail()
+        sleep(3)
+        # 获取分享 icon
+        eles = self.finds(by="xpath", locator='//*[@class="android.widget.ImageView"]')
+        share_ele = eles[len(eles)-4]
+        share_ele.click()
+        sleep(3)
+        # 获取 朋友圈 元素
+        pyq = self.find(by="id", locator="shareto_weixincircle").text
+        self.back()
+        return pyq
+
+    # 小视频详情页-询底价
+    def small_video_ask_price(self):
+        self.goto_small_video_detail()
+        sleep(3)
+        try:
+            # 尝试获取询底价按钮
+            self.find(by="id", locator="fsviTvAsk").click()
+        except Exception as e:
+            # 否则  获取询底价 icon
+            eles = self.finds(by="xpath", locator='//*[@class="android.widget.ImageView"]')
+            share_ele = eles[4]
+            share_ele.click()
+            self.find(by="id", locator="fsviTvAsk").click()
+        sleep(3)
+        # 获取询底价弹窗中的 询底价按钮
+        ask_btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        return ask_btn
+
+    # 小视频详情页-微聊
+    def small_video_chat(self):
+        self.goto_small_video_detail()
+        # 获取小视频详情页 销售姓名
+        sale_name = self.find(by="id", locator="fsviTvSaleName").text
+        # 点击微聊
+        self.find(by="id", locator="fsviLlChat").click()
+        sleep(3)
+        # 获取微聊界面标题中的销售姓名
+        title = self.find(by="id", locator="title_center_txt").text
+        self.back()
+        return sale_name, title
+
+    # 小视频详情页-进入经销商详情
+    def small_video_goto_dealer(self):
+        self.goto_small_video_detail()
+        # 获取经销商名称
+        dealer_name_ele = self.find(by="id", locator="fsviTvDealerName")
+        dealer_name = dealer_name_ele.text
+        # 点击经销商
+        dealer_name_ele.click()
+        sleep(3)
+
+    # 经销商详情页-地图导航
+    def dealer_detail_map(self):
+        self.small_video_goto_dealer()
+        # 获取地址
+        addr = self.find(by="id", locator="dealer_address_tv").text
+        # 点击地图导航
+        self.find(by="id", locator="dealer_distance_tv").click()
+        sleep(10)
+        # 获取地图中的地址
+        addr_map = self.find(by="id", locator="com.baidu.BaiduMap:id/tv_first_text").text
+        self.back()
+        self.back()
+        self.back()
+        return addr, addr_map
+
+    # 经销商详情页-推荐销售
+    def dealer_detail_sale(self):
+        self.small_video_goto_dealer()
+        # 获取第一个销售姓名
+        name_ele = self.find(by="id", locator="sales_name_tv")
+        name = name_ele.text
+        name_ele.click()
+        sleep(3)
+        # 获取销售详情页的销售姓名
+        sale_name = self.find(by="id", locator="sale_name").text
+        self.back()
+        self.back()
+        return name, sale_name
+
+    # 经销商详情页-经销商小视频
+    def dealer_detail_small_video(self):
+        self.small_video_goto_dealer()
+        # 获取经销商详情页， 促销信息元素
+        self.base_srcoll_up_down(by="id", locator="promotions_tv", rx=0.5, ry1=0.6, ry2=0.4, num=100)
+        # 获取第一个小视频中的标题
+        video_title_ele = self.find(by="id", locator="user_name_tv")
+        video_title = video_title_ele.text
+        video_title_ele.click()
+        sleep(3)
+        # 获取小视频详情页的标题
+        title = self.find(by="id", locator="fsviTvSaleName").text
+        self.back()
+        self.back()
+        return video_title, title
+
+    # 经销商详情页-贷款
+    def dealer_detail_loan(self):
+        self.small_video_goto_dealer()
+        # 点击贷款
+        self.find(by="id", locator="dealer_detail_bottom_loan_tv").click()
+        sleep(3)
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        self.back()
+        return btn
+
+    # 经销商详情页-预约保养
+    def dealer_detail_appointment(self):
+        self.small_video_goto_dealer()
+        # 点击预约保养
+        self.find(by="id", locator="dealer_detail_bottom_appointment_maintain").click()
+        sleep(3)
+        title = self.find(by="id", locator="title_center_txt").text
+        self.back()
+        self.back()
+        return title
+
+    # 经销商详情页-获取底价
+    def dealer_detail_ask_price(self):
+        self.small_video_goto_dealer()
+        # 点击 获取底价
+        self.find(by="id", locator="dealer_detail_bottom_askprice_tv").click()
+        sleep(3)
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        self.back()
+        return btn
+
+    # 小视频详情页-暂停播放
+    def smal_video_stop(self):
+        self.goto_small_video_detail()
+        # 点击小视频
+        self.find(by="xpath", locator='//*[@class="com.yiche.price.widget.baiduvideo.TextureRenderView"]').click()
+        stop_btn = self.find(by="id", locator="iv_short_video_pause")
+        status = stop_btn.is_enabled()
+        return status
+
+    # 小视频tab-发布小视频
+    def post_small_video(self):
+        # 点击发布小视频按钮
+        self.find(by="id", locator="iv_play").click()
+        sleep(3)
+        # 点击相册
+        self.find(by="id", locator="choose_video_tv").click()
+        sleep(3)
+        # 选择相册中的第一条小视频
+        self.find(by="id", locator="iv_thumb").click()
+        # 点击确定
+        self.find(by="id", locator="btn_ok").click()
+        sleep(10)
+        # 预览页面点击确定
+        self.find(by="id", locator="next_tv").click()
+        sleep(10)
+        # 发布小视频页面输入内容
+        self.find(by="id", locator="sns_post_contetn_edt").send_keys("测试测试测试")
+        # 添加车型
+        self.find(by="id", locator="iv_cartype_add").click()
+        self.base_scroll("text", "奔驰").click()
+        self.find(by="xpath", locator='//*[@text="奔驰GLC"]').click()
+        # 点击发布
+        self.find(by="id", locator="title_right_btn").click()
+        msg = self.get_toast()
+        return msg
