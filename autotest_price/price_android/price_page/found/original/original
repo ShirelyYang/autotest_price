@@ -1,0 +1,288 @@
+import re
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class Original(BasePage):
+    # 进入新车tab
+    def goto_new_car(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="新车"] ').click()
+
+    # 查看新闻详情页的图片大图
+    def new_car_detail_big_picture(self):
+        self.goto_new_car()
+        # 点击第一条新闻，进入详情页
+        self.find(by="id", locator="news_title").click()
+        # 查找新闻中的图片元素
+        pic = self.base_srcoll_up_down(by="xpath", locator='//*[contains(@text, "img_xwxq")]', rx=0.5,
+                                       ry1=0.8, ry2=0.4, num=100)
+        pic.click()
+        sleep(3)
+        # 大图页面点击保存
+        self.find(by="id", locator="pv_save_ib").click()
+        msg = self.get_toast()
+        self.back()
+        return msg
+
+    # 点击新闻详情页相关推荐-车型
+    def new_car_detail_recommend_car(self):
+        # 点击第一条新闻，进入详情页
+        self.find(by="id", locator="news_title").click()
+        # 查找 相关推荐 元素
+        self.base_srcoll_up_down(by="xpath", locator='//*[@class="android.view.View" and @text="相关推荐"]',
+                                 rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        # 查找 相关推荐 下的车型元素
+        recommend_car = self.base_srcoll_up_down(by="xpath", locator='(//*[@text="获取底价"]/..'
+                                                                     '//*[@class="android.view.View"])[1]',
+                                                 rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        car_name = recommend_car.text
+        recommend_car.click()
+        sleep(3)
+        brandtype_serial_name = self.find(by="id", locator="brandtype_serial_name").text
+        self.back()
+        return car_name, brandtype_serial_name
+
+    # 点击新闻详情页相关推荐-询底价
+    def new_car_detail_recommend_ask_price(self):
+        # 点击第一条新闻，进入详情页
+        # self.find(by="id", locator="news_title").click()
+        # 查找 相关推荐 元素
+        self.base_srcoll_up_down(by="xpath", locator='//*[@class="android.view.View" and @text="相关推荐"]',
+                                 rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 查找 相关推荐 下的 询底价元素
+        recommend_ask = self.base_srcoll_up_down(by="xpath", locator='//*[@text="获取底价"]',
+                                                 rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        recommend_ask.click()
+        sleep(3)
+        # 获取询底价弹窗中的按钮文案
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        return btn
+
+    # 点击新闻详情页相关推荐-资讯
+    def new_car_detail_recommend_news(self):
+        # 点击第一条新闻，进入详情页
+        # self.find(by="id", locator="news_title").click()
+        # 查找 相关推荐 元素
+        self.base_srcoll_up_down(by="xpath", locator='//*[@class="android.view.View" and @text="相关推荐"]',
+                                 rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # 查找 第一条资讯 元素
+        news_ele = self.base_srcoll_up_down(by="xpath", locator='(//*[@text="获取底价"]/../../..'
+                                                                '/following-sibling::'
+                                                                '*[@class="android.view.View"]'
+                                                                '//*[@class="android.view.View"]'
+                                                                '//*[@class="android.view.View"])[1]',
+                                 rx=0.5, ry1=0.7, ry2=0.4, num=100)
+        news_title = news_ele.text
+        news_ele.click()
+        sleep(3)
+        # 获取新闻详情页的资讯标题
+        title = self.find(by="xpath", locator='//*[@class="android.view.View"]//*[@class="android.view.View"]').text
+        self.back()
+        return news_title, title
+
+    # 点击新闻详情页-评论
+    def new_car_detail_comment(self):
+        # 点击第一条新闻，进入详情页
+        # self.find(by="id", locator="news_title").click()
+        # 定位到评论模块
+        # self.base_srcoll_up_down(by="xpath", locator='//*[@text="最新评论" and @class="android.view.View"]',
+                                 # rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 点击评论文本框
+        self.find(by="id", locator="content_edt").click()
+        # 输入评论
+        self.find(by="id", locator="comment_content").send_keys("不错诶")
+        # 点击发送
+        self.find(by="id", locator="comment_send_imgbtn").click()
+        msg = self.get_toast()
+        return msg
+
+    # 点击新闻详情页-查看全部评论
+    def new_car_detail_comment_all(self):
+        # 点击第一条新闻，进入详情页
+        # self.find(by="id", locator="news_title").click()
+        # 点击 评论icon
+        self.find(by="id", locator="iv_video_comment").click()
+        sleep(3)
+        # 查找 指定账号发表的评论
+        account = "大全儿6359微博"
+        self.base_srcoll_up_down(by="xpath", locator=f'//*[@text="{account}"]', rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 获取指定账号下的评论
+        comment = self.find(by="xpath", locator=f'//*[@text="{account}"]/..'
+                                                '//*[@resource-id="com.yiche.price:id/textcontent"]').text
+        self.back()
+        return comment
+
+    # 点击新闻详情页-收藏
+    def new_car_detail_collection(self):
+        # 点击收藏按钮状态
+        self.find(by="id", locator="iv_fav").click()
+        msg = self.get_toast()
+        return msg
+
+    # 点击新闻详情页-分享
+    def new_car_detail_share(self):
+        # 点击分享按钮状态
+        self.find(by="id", locator="iv_share").click()
+        sleep(3)
+        # 获取弹窗中 “微信好友” 元素
+        weixin = self.find(by="id", locator="shareto_weixin").text
+        self.back()
+        return weixin
+
+    # 点击新闻详情页-看车
+    def new_car_detail_look_car(self):
+        # 点击看车按钮状态
+        self.find(by="id", locator="newsdetetail_kc_txt").click()
+        sleep(3)
+        # 获取弹窗中的 第一条车型名称
+        car_name_ele = self.find(by="id", locator="lookcar_serialname_txt")
+        car_name = car_name_ele.text
+        car_name_ele.click()
+        brandtype_serial_name = self.find(by="id", locator="brandtype_serial_name").text
+        self.back()
+        return car_name, brandtype_serial_name
+
+    # 点击新闻详情页-询底价
+    def new_car_detail_look_car_ask_price(self):
+        # 点击看车弹窗中的询底价按钮
+        self.find(by="id", locator="lookcar_askprice_txt").click()
+        sleep(3)
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.back()
+        return btn
+
+    # 点击新闻详情页-看车-参数配置
+    def new_car_detail_look_car_parameter(self):
+        # 点击看车按钮状态
+        self.find(by="id", locator="newsdetetail_kc_txt").click()
+        sleep(3)
+        # 点击 参数配置 按钮
+        self.find(by="id", locator="lookcar_parameter_txt").click()
+        sleep(3)
+        self.find(by="xpath", locator='//*[@text="完整参数"]').click()
+        notice = self.find(by="id", locator="notice_tv").text
+        self.back()
+        return notice
+
+    # 点击新闻详情页-看车-图片
+    def new_car_detail_look_car_picture(self):
+        # 点击 图片 按钮
+        self.find(by="id", locator="lookcar_image_txt").click()
+        sleep(3)
+        # 点击图片列表页面的第一张图片
+        self.find(by="id", locator="icplIv").click()
+        sleep(3)
+        # 在图片详情页 点击保存
+        self.find(by="id", locator="iv_download").click()
+        msg = self.get_toast()
+        self.back()
+        self.back()
+        return msg
+
+    # 点击新闻详情页-看车-最新资讯
+    def new_car_detail_look_car_news(self):
+        # 点击 最新资讯 按钮
+        self.find(by="id", locator="lookcar_news_txt").click()
+        sleep(3)
+        # 在综述页滑动屏幕，查看锚点定位
+        news = self.base_srcoll_up_down(by="xpath",
+                                 locator='//*[@class="android.widget.TextView" and @text="资讯"]',
+                                 rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        news_status = news.is_selected()
+        self.back()
+        return news_status
+
+    # 点击新闻详情页-看车-车款列表
+    def new_car_detail_look_car_cartypelist(self):
+        # 点击 车款列表 按钮
+        self.find(by="id", locator="lookcar_cartypelist_txt").click()
+        sleep(3)
+        # 在综述页滑动屏幕，查看锚点定位
+        car = self.base_srcoll_up_down(by="xpath",
+                                 locator='//*[@class="android.widget.TextView" and @text="车型"]',
+                                 rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        car_status = car.is_selected()
+        self.back()
+        self.back()
+        self.back()
+        return car_status
+
+    # 在新车tab下，查找评论数大于20条的新闻
+    def search_multi_comment(self):
+        # count_ele = self.base_scroll("resourceId", "com.yiche.price:id/news_comment_count")
+        count_ele = self.base_srcoll_up_down(by="id", locator="news_comment_count", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # count = int(filter(str.isdigit, count_ele.text))
+        count = int(re.findall(r'\d+', count_ele.text)[0])
+        while count < 20:
+            # count_ele = self.base_scroll("resourceId", "com.yiche.price:id/news_comment_count")
+            count_ele = self.base_srcoll_up_down(by="id", locator="news_comment_count", rx=0.5, ry1=0.8, ry2=0.5,
+                                                 num=100)
+            count = int(re.findall(r'\d+', count_ele.text)[0])
+        count_ele.click()
+
+    # 评论数大于20条的新闻详情-新增主评论
+    def add_comment(self):
+        self.search_multi_comment()
+        # 查找热门评论title
+        self.base_srcoll_up_down(by="xpath", locator='//*[@text="热门评论"]', rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 点击评论文本框
+        self.find(by="id", locator="content_edt").click()
+        # 输入评论内容
+        content = "这也太炫酷了，溢出屏幕的高级"
+        username = "大全儿6359微博"
+        self.find(by="id", locator="comment_content").send_keys(content)
+        # 点击发送
+        self.find(by="id", locator="comment_send_imgbtn").click()
+        # 在热门评论第一条查找自己发的评论
+        content_send = self.finds(by="xpath", locator=f'(//*[@text="{username}"]/..//*[@class="android.view.View"]')[3].text
+        return content, content_send
+
+    # 进入评测tab
+    def goto_evaluating(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="评测"] ').click()
+        sleep(3)
+        # 选择第一条新闻，点击进入详情页面
+        news_ele = self.find(by="id", locator="news_title")
+        title = news_ele.text
+        news_ele.click()
+        sleep(3)
+        title_detail = self.find(by="xpath", locator='//*[@class="android.view.View"]//*[@class="android.view.View"]').text
+        self.back()
+        return title, title_detail
+
+    # 进入导购tab
+    def goto_shopping(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="导购"] ').click()
+        sleep(3)
+        # 选择第一条新闻，点击进入详情页面
+        news_ele = self.find(by="id", locator="news_title")
+        title = news_ele.text
+        news_ele.click()
+        sleep(3)
+        title_detail = self.find(by="xpath",
+                                 locator='//*[@class="android.view.View"]//*[@class="android.view.View"]').text
+        self.back()
+        return title, title_detail
+
+    # 进入图片tab
+    def goto_picture(self):
+        self.find(by="xpath", locator='//*[@class="android.widget.TextView" and @text="图片"] ').click()
+        sleep(3)
+        # 点击第一条新闻，进入详情页面
+        pic_news = self.find(by="id", locator="news_title")
+        title = pic_news.text
+        pic_news.click()
+        sleep(3)
+        title_detail = self.find(by="id", locator="news_title").text
+        self.back()
+        return title, title_detail
+
+    # 图片新闻列表页 查看图片大图
+    def list_picture(self):
+        self.find(by="id", locator="image").click()
+        self.find(by="id", locator="pv_save_ib_top").click()
+        msg = self.get_toast()
+        self.back()
+        return msg
