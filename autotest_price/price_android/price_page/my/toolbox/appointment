@@ -1,0 +1,11 @@
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class Appointment(BasePage):
+    # 预约保养
+    def appointment(self):
+        sleep(3)
+        title = self.find(by="id", locator="title_center_txt").text
+        return title
