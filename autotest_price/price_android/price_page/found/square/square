@@ -1,0 +1,569 @@
+from time import sleep
+
+from autotest_price.price_android.price_page.base_page import BasePage
+
+
+class Square(BasePage):
+    # 搜索帖子或用户
+    def search(self):
+        # 点击搜索文本框
+        self.find(by="id", locator="search_btn").click()
+        # 输入搜索内容
+        self.find(by="id", locator="searchEt").send_keys("奥迪")
+        # 点击第一条关联词条
+        self.find(by="id", locator="title").click()
+        # 获取第一条结果中的用户名称
+        user_ele = self.find(by="id", locator="topic_user")
+        user = user_ele.text
+        # 点击第一条搜索出来的内容
+        user_ele.click()
+        # 获取帖子详情页的用户名
+        name = self.find(by="id", locator="title_tv").text
+        # 点击左上角返回按钮
+        # self.find(by="id", locator="topic_head").click()
+        self.back()
+        # 点击搜索框右侧的取消按钮
+        self.find(by="id", locator="cancel_search_tv").click()
+        self.find(by="id", locator="cancel_search_tv").click()
+        return user, name
+
+    # 进入热门话题
+    def goto_hot_topic(self):
+        # 点击热门话题
+        self.find(by="xpath", locator='//*[@text="热门话题"]').click()
+        sleep(5)
+
+    # 热门话题-精选tab-点赞
+    def selected_topic_like(self):
+        self.goto_hot_topic()
+        # 查找点赞元素
+        like = self.base_srcoll_up_down(by="id", locator="com.yiche.price:id/img", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # 获取点赞前的点赞数
+        count = int(self.find(by="id", locator="count").text)
+        # 点赞
+        like.click()
+        # 获取点赞后的点赞数
+        count_liked = int(self.find(by="id", locator="count").text)
+        return count, count_liked
+
+    # 热门话题-精选tab-评论
+    def selected_topic_comment(self):
+        self.goto_hot_topic()
+        # 查找评论元素
+        comment = self.base_srcoll_up_down(by="id", locator="com.yiche.price:id/icon_txt", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # 获取评论前评论总数
+        count = int(self.find(by="id", locator="count_txt").text)
+        # 评论
+        comment.click()
+        content = "说得太对了"
+        self.find(by="id", locator="sns_comment_content").send_keys(content)
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        msg = self.get_toast()
+        return msg
+
+    # 热门话题-精选tab-图文话题详情
+    def selected_topic_detail(self):
+        # 进入热门话题页面
+        self.goto_hot_topic()
+        # 获取图文数据
+        self.base_swipe_up_down(by="id", locator="tp_img_twhp", rx=0.5, ry1=0.8, ry2=0.3, num=100)
+        # 获取第一条图文数据的用户名
+        name_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/tp_img_twhp"]'
+                                                                '/../..//*[@resource-id="com.yiche.price:id'
+                                                                '/topic_user"]', rx=0.5, ry1=0.6, ry2=0.8, num=100)
+        name = name_ele.text
+        name_ele.click()
+        # 获取详情页用户名称
+        sleep(3)
+        user = self.find(by="id", locator="title_tv").text
+        # self.back()
+        return name, user
+
+    # 热门话题-精选tab-进入图文话题详情
+    def goto_selected_topic_detail(self):
+        # 进入热门话题页面
+        self.goto_hot_topic()
+        # 获取图文数据
+        self.base_swipe_up_down(by="id", locator="tp_img_twhp", rx=0.5, ry1=0.8, ry2=0.3, num=100).click()
+        sleep(3)
+
+    # 热门话题-精选tab-图文话题详情-进入发布者详情页
+    def goto_selected_topic_detail_author(self):
+        self.goto_selected_topic_detail()
+        # 获取详情页用户名称
+        user = self.find(by="id", locator="title_tv").text
+        # 点击用户头像
+        self.find(by="id", locator="topic_head").click()
+        sleep(3)
+        # 用户详情页用户名称
+        # name = self.find(by="id", locator="title_tv").text
+        # return user, name
+
+    # 热门话题-精选tab-图文话题详情-进入发布者详情页-关注
+    def selected_topic_detail_author_focus(self):
+        self.goto_selected_topic_detail_author()
+        # 获取关注元素
+        focus_ele = self.find(by="id", locator="doatt")
+        # 判断是否关注过,如果已关注，先取消关注，再重新点击关注
+        if focus_ele.text == "已关注":
+            focus_ele.click()
+        focus_ele.click()
+        return focus_ele.text
+
+    # 热门话题-精选tab-图文话题详情-进入发布者详情页-粉丝
+    def selected_topic_detail_author_fans(self):
+
+        # self.goto_selected_topic_detail_author()
+
+        # 点击粉丝
+        self.find(by="id", locator="fans").click()
+        sleep(3)
+        username = self.find(by="id", locator="username").text
+        self.back()
+        self.back()
+        return username
+
+    # 热门话题-精选tab-进入图文话题详情-分享-消息
+    def selected_topic_detail_share_news(self):
+
+        # self.goto_selected_topic_detail()
+
+        # 点击分享按钮
+        self.find(by="id", locator="top_share").click()
+        sleep(3)
+        # 点击分享半弹层中的消息
+        self.find(by="id", locator="topic_detail_message").click()
+        sleep(3)
+        # 获取消息中心列表中的社区消息
+        msg_title = self.find(by="id", locator="msg_title").text
+        # 点击返回
+        self.find(by="id", locator="title_left_imgbtn").click()
+        return msg_title
+
+    # 热门话题-精选tab-进入图文话题详情-评论
+    def selected_topic_detail_comment(self):
+
+        # self.goto_selected_topic_detail()
+
+        # 点击评论文本框
+        self.find(by="id", locator="input").click()
+        # 输入评论内容
+        self.find(by="id", locator="sns_comment_content").send_keys("不错不错")
+        # 添加表情
+        self.find(by="id", locator="sns_emoji_ib").click()
+        self.find(by="id", locator="emojicon_icon").click()
+        # 点击发送
+        self.find(by="id", locator="sns_comment_send_iv").click()
+        msg = self.get_toast()
+        return msg
+
+    # 热门话题-精选tab-进入图文话题详情-收藏
+    def selected_topic_detail_collection(self):
+
+        # self.goto_selected_topic_detail()
+
+        # 获取收藏按钮
+        collection = self.find(by="id", locator="fav_img")
+        collection.click()
+        msg = self.get_toast()
+        if msg == "取消成功":
+            collection.click()
+        msg = self.get_toast()
+        self.back()
+        return msg
+
+    # 热门话题-最新tab-进入小视频话题详情
+    def selected_newest_detail(self):
+
+        self.goto_hot_topic()
+
+        # 点击最新tab
+        self.find(by="xpath", locator='//*[@text="最新"]').click()
+        # 查找小视频数据
+        self.base_srcoll_up_down(by="id", locator="tp_video_image_real", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # 获取该话题的用户名
+        username_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id'
+                                                                '/tp_video_image_real"]/../../../..'
+                                                                '//*[@resource-id="com.yiche.price:id'
+                                                                '/topic_user"]', rx=0.5, ry1=0.6, ry2=0.8, num=100)
+        username = username_ele.text
+        username_ele.click()
+        sleep(3)
+        name = self.find(by="id", locator="fsviTvName").text
+        # 点击返回
+        self.find(by="id", locator="iv_short_video_title_back").click()
+        self.back()
+        return username, name
+
+    # 进入车型社区
+    def goto_car_community(self):
+        # 点击车型社区
+        self.find(by="xpath", locator='//*[@text="车型社区"]').click()
+        sleep(5)
+
+    # 车型社区列表-选择车型-关注
+    def car_community_select_car_focus(self):
+
+        self.goto_car_community()
+
+        # 点击车型
+        self.find(by="id", locator="com.yiche.price:id/car_tv").click()
+        sleep(3)
+        # 选择品牌
+        self.base_scroll("text", "奔驰").click()
+        # 获取车型名称
+        car_ele = self.find(by="id", locator="subject_name")
+        car = car_ele.text
+        # 选择车型
+        car_ele.click()
+        # 查看选择完车型后，车型社区中的车型名称
+        car_name = self.find(by="id", locator="subject_name").text
+        # 获取关注元素
+        focus_ele = self.find(by="id", locator="subject_follow_btn")
+        focus = focus_ele.text
+        # 先判断是否已关注，若已关注，点击取消重新关注
+        if focus == "已关注":
+            focus_ele.click()
+        focus_ele.click()
+        self.back()
+        self.back()
+        return focus
+
+    # 固定车型社区-精华tab
+    # 10.13.5有改动，先不写这块
+    def essence(self):
+        self.finds(by="id", locator="layout")[-1].click()
+
+        # 获取第一条数据发布者名称
+        author_ele = self.find(by="id", locator="topic_user")
+        author = author_ele.text
+        # 点击进入帖子详情
+        author_ele.click()
+        sleep(3)
+        # 获取帖子详情页用户名
+        username = self.find(by="id", locator="title_tv").text
+        self.back()
+        return author, username
+
+    # 固定车型社区-最新tab
+    # 10.13.5有改动，先不写这块
+    def newest(self):
+
+        # self.finds(by="id", locator="layout")[-1].click()
+
+        # 点击最新tab
+        self.find(by="xpath", locator='//*[@text="最新"]').click()
+        # 获取第一条帖子发布者姓名
+        autohor_ele = self.base_srcoll_up_down(by="id", locator="topic_user", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        author = autohor_ele.text
+        # 点击进入帖子详情
+        autohor_ele.click()
+        sleep(3)
+        # 获取帖子详情页用户名
+        username = self.find(by="id", locator="title_tv").text
+        self.back()
+        return author, username
+
+    # 固定车型社区-回复tab
+    # 10.13.5有改动，先不写这块
+    def reply(self):
+
+        # self.finds(by="id", locator="layout")[-1].click()
+
+        # 点击回复tab
+        self.find(by="xpath", locator='//*[@text="回复"]').click()
+
+    # 固定车型社区-经销商tab-经销商详情
+    def dealers_detail(self):
+
+        # self.finds(by="id", locator="layout")[-1].click()
+
+        # 点击经销商tab
+        self.find(by="xpath", locator='//*[@text="经销商"]').click()
+        # 获取第一条经销商名称
+        dealer_name_ele = self.find(by="id", locator="dealer_name")
+        dealer_name = dealer_name_ele.text
+        # 点击进入经销商详情页
+        dealer_name_ele.click()
+        sleep(3)
+        # 获取经销商详情页  经销商名称
+        dealer_name_detail = self.find(by="id", locator="dealer_name").text
+        # 点击左上角返回
+        self.find(by="id", locator="title_left_imgbtn").click()
+        return dealer_name, dealer_name_detail
+
+    # 固定车型社区-经销商tab-贷款
+    def dealers_loan(self):
+
+        # self.finds(by="id", locator="layout")[-1].click()
+
+        # 点击经销商tab
+        # self.find(by="xpath", locator='//*[@text="经销商"]').click()
+
+        # 点击贷款
+        self.find(by="id", locator="promotion_focus_dial").click()
+        sleep(3)
+        submit = self.find(by="id", locator="submit").text
+        self.find(by="id", locator="title_left_imgbtn").click()
+        return submit
+
+    # 固定车型社区-经销商tab-询底价
+    def dealers_ask_price(self):
+
+        # self.finds(by="id", locator="layout")[-1].click()
+
+        # 点击经销商tab
+        # self.find(by="xpath", locator='//*[@text="经销商"]').click()
+
+        # 点击询底价
+        self.find(by="id", locator="promotion_focus_loan").click()
+        sleep(3)
+        btn = self.find(by="id", locator="askprice_txt_bottom").text
+        self.find(by="id", locator="ask_close").click()
+        self.back()
+        return btn
+
+    # 车型社区列表页-点击第一条数据
+    def car_community_list(self):
+
+        # self.goto_car_community()
+
+        # 获取发布者名称
+        topic_user_ele = self.find(by="id", locator="topic_user")
+        topic_user = topic_user_ele.text
+        topic_user_ele.click()
+        sleep(3)
+        # 获取详情页发布者名称
+        user = self.find(by="id", locator="title_tv").text
+        self.back()
+        self.find(by="id", locator="back").click()
+        return topic_user, user
+
+    # 进入每日榜单
+    def goto_daily_list(self):
+        # 点击每日榜单
+        self.find(by="xpath", locator='//*[@text="每日榜单"]').click()
+        sleep(5)
+
+    # 每日榜单—热门帖子-图文帖子详情
+    def daily_list_hot_topic_detail(self):
+        self.goto_daily_list()
+        # 获取图文帖子用户名
+        self.base_srcoll_up_down(by="id", locator="tp_img_twhp", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        topic_user_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/tp_img_twhp"]'
+                                                       '/../..//*[@resource-id="com.yiche.price:id/topic_user"]',
+                                                  rx=0.5, ry1=0.5, ry2=0.8)
+        topic_user = topic_user_ele.text
+        topic_user_ele.click()
+        sleep(3)
+        # 获取详情页发布者名称
+        user = self.find(by="id", locator="title_tv").text
+        self.back()
+        self.find(by="id", locator="back").click()
+        return topic_user, user
+
+    # 每日榜单—热门帖子-小视频帖子详情
+    def daily_list_hot_video_detail(self):
+
+        # self.goto_daily_list()
+
+        # 获取小视频类型帖子
+        self.base_srcoll_up_down(by="id", locator="tp_video_image_real", rx=0.5, ry1=0.8, ry2=0.5, num=100)
+        # 获取小视频标题
+        title_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/tp_video_image_real"]'
+                                                  '/../../..//*[@resource-id="com.yiche.price:id/topic_content"]',
+                                             rx=0.5, ry1=0.5, ry2=0.8, num=100)
+        title = title_ele.text
+        title_ele.click()
+        sleep(3)
+        # 获取详情页小视频标题
+        title_detail = self.find(by="id", locator="fsviTvContent").text
+        self.find(by="id", locator="iv_short_video_title_back").click()
+        return title, title_detail
+
+    # 每日榜单—评论最多-帖子详情
+    def daily_list_most_comments_detail(self):
+
+        # self.goto_daily_list()
+
+        # 点击评论最多tab
+        self.find(by="xpath", locator='//*[@text="评论最多"]').click()
+        # 获取第一条数据的评论数
+        topic_user_ele = self.find(by="id", locator="topic_user")
+        count_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/topic_user"]'
+                                                  '/../..//*[@resource-id="com.yiche.price:id/count_txt"]',
+                                             rx=0.5, ry1=0.8, ry2=0.6, num=100)
+        count = int(count_ele.text)
+        topic_user_ele.click()
+        # 获取详情页评论数
+        count_detail = int(self.find(by="id", locator="comment_img").text)
+        self.back()
+        return count, count_detail
+
+    # 每日榜单—获赞最多-帖子详情
+    def daily_list_most_likes_detail(self):
+
+        # self.goto_daily_list()
+
+        # 点击获赞最多tab
+        self.find(by="xpath", locator='//*[@text="获赞最多"]').click()
+        # 获取第一条数据的获赞数
+        topic_user_ele = self.find(by="id", locator="topic_user")
+        topic_user = topic_user_ele.text
+        topic_user_ele.click()
+        # 获取详情页用户名
+        user = self.find(by="id", locator="title_tv").text
+        self.back()
+        self.back()
+        return topic_user, user
+
+    # 提车
+    def pick_up_the_car(self):
+        # 点击提车按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="提车"]').click()
+        sleep(3)
+        # 获取提车页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 活动
+    def activity(self):
+        # 点击活动按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="活动"]').click()
+        sleep(3)
+        # 获取活动页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 选车
+    def select(self):
+        # 点击提车按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="选车"]').click()
+        sleep(3)
+        # 获取选车页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 用车
+    def use_car(self):
+        # 点击用车按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="用车"]').click()
+        sleep(3)
+        # 获取用车页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 视频
+    def video(self):
+        # 点击视频按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="视频"]').click()
+        sleep(3)
+        # 获取视频页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 游记
+    def travel(self):
+        # 点击游记按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="游记"]').click()
+        sleep(3)
+        # 获取游记页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 问答
+    def qa(self):
+        # 点击问答按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="问答"]').click()
+        sleep(3)
+        # 获取问答页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 新鲜事
+    def something_new(self):
+        # 点击新鲜事按钮
+        self.find(by="xpath", locator='//*[@resource-id="com.yiche.price:id/btn" and @text="新鲜事"]').click()
+        sleep(3)
+        # 获取新鲜事页面标题
+        title = self.find(by="id", locator="title_tv").text
+        self.back()
+        return title
+
+    # 点击广场中的图文帖子
+    def square_topic_detail(self):
+        # 查找图文帖子数据
+        self.base_srcoll_up_down(by="id", locator="tp_img_twhp", rx=0.5, ry1=0.8, ry2=0.4, num=100)
+        # 获取该帖子对应的用户名
+        topic_user_ele = self.base_srcoll_up_down(by="xpath", locator='//*[@resource-id="com.yiche.price:id/tp_img_twhp"]'
+                                                                  '/../..//*[@resource-id="com.yiche.price:id/topic_user"]',
+                                              rx=0.5, ry1=0.6, ry2=0.8, num=100)
+        topic_user = topic_user_ele.text
+        # 点击进入帖子详情页，获取详情页用户名
+        topic_user_ele.click()
+        sleep(3)
+        user = self.find(by="id", locator="title_tv").text
+        self.back()
+        return topic_user, user
+
+    # 进入发布半弹层
+    def goto_post(self):
+        # 点击发布按钮
+        self.find(by="id", locator="opentopic").click()
+        sleep(3)
+
+    # 发布小视频
+    def post_video(self):
+        self.goto_post()
+        # 点击小视频按钮
+        self.find(by="xpath", locator='//*[@text="小视频"]').click()
+        sleep(3)
+
+        # 点击相册
+        self.find(by="id", locator="choose_video_tv").click()
+        # 选择相册中第一条数据
+        self.find(by="id", locator="iv_thumb").click()
+        # 点击确定
+        self.find(by="id", locator="btn_ok").click()
+        sleep(10)
+
+        # 点击录制按钮
+        # self.find(by="id", locator="iv_record").click()
+        # sleep(10)
+
+        # 点击继续
+        self.find(by="id", locator="btn_confirm").click()
+        sleep(10)
+
+        # self.find(by="id", locator="next_tv").click()
+        # sleep(10)
+
+        # 输入内容
+        self.find(by="id", locator="sns_post_contetn_edt").send_keys("测试测试测试")
+        # 添加车型
+        self.find(by="id", locator="iv_cartype_add").click()
+        sleep(3)
+        self.find(by="xpath", locator="奥迪").click()
+        self.find(by="xpath", locator="奥迪Q2L").click()
+        # 点击发布
+        self.find(by="id", locator="title_right_btn").click()
+        msg = self.get_toast()
+        return msg
+
+
+
+
+
+
+
+
+
+
+
