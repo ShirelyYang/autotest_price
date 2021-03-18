@@ -1,7 +1,5 @@
-from appium.webdriver.common.touch_action import TouchAction
-
 from autotest_price.price_android.price_page.base_page import BasePage
-from autotest_price.price_android.price_page.my.toolbox.toolbox_more import ToolBoxMore
+from autotest_price.price_android.price_page.my.toolbox import ToolBoxMore
 
 
 class My(BasePage):

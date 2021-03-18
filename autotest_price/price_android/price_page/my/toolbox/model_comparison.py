@@ -1,7 +1,3 @@
-import pytest
-from appium.webdriver.common.mobileby import MobileBy
-from time import sleep
-
 from autotest_price.price_android.price_page.base_page import BasePage
 
 

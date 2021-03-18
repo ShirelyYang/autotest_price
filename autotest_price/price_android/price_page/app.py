@@ -5,9 +5,9 @@ from appium import webdriver
 from time import sleep
 
 from autotest_price.price_android.price_page.base_page import BasePage
-from autotest_price.price_android.price_page.found.found import Found
+from autotest_price.price_android.price_page import Found
 from autotest_price.price_android.price_page.market.market import Market
-from autotest_price.price_android.price_page.my.my import My
+from autotest_price.price_android.price_page.my import My
 
 
 class App(BasePage):

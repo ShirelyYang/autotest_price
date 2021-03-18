@@ -2,29 +2,29 @@ from time import sleep
 
 from autotest_price.price_android.price_page.base_page import BasePage
 from autotest_price.price_android.price_page.my.toolbox.appointment import Appointment
-from autotest_price.price_android.price_page.my.toolbox.baike import Baike
-from autotest_price.price_android.price_page.my.toolbox.beauty_choose_car import BeautyChooseCar
-from autotest_price.price_android.price_page.my.toolbox.borrow_cash import BorrowCash
-from autotest_price.price_android.price_page.my.toolbox.cal import Calculator
-from autotest_price.price_android.price_page.my.toolbox.car_replacement import CarReplacement
-from autotest_price.price_android.price_page.my.toolbox.car_valuation import CarValuation
-from autotest_price.price_android.price_page.my.toolbox.condition_selection import ConditionSelection
-from autotest_price.price_android.price_page.my.toolbox.deal_price import DealPrice
-from autotest_price.price_android.price_page.my.toolbox.dial_indicator import DialIndicator
-from autotest_price.price_android.price_page.my.toolbox.four_step_car_selection import FourStepCarSelection
-from autotest_price.price_android.price_page.my.toolbox.illegal_inquiry import IllegalInquiry
-from autotest_price.price_android.price_page.my.toolbox.license_scoring import LicenseScoring
-from autotest_price.price_android.price_page.my.toolbox.local_car_market import LocalCarMarket
-from autotest_price.price_android.price_page.my.toolbox.lottery_query import LotteryQuery
-from autotest_price.price_android.price_page.my.toolbox.model_comparison import ModelComparison
-from autotest_price.price_android.price_page.my.toolbox.nearby_dealers import NearbyDealers
+from autotest_price.price_android.price_page.my.toolbox import Baike
+from autotest_price.price_android.price_page.my.toolbox import BeautyChooseCar
+from autotest_price.price_android.price_page.my.toolbox import BorrowCash
+from autotest_price.price_android.price_page.my.toolbox import Calculator
+from autotest_price.price_android.price_page.my.toolbox import CarReplacement
+from autotest_price.price_android.price_page.my.toolbox import CarValuation
+from autotest_price.price_android.price_page.my.toolbox import ConditionSelection
+from autotest_price.price_android.price_page.my.toolbox import DealPrice
+from autotest_price.price_android.price_page.my.toolbox import DialIndicator
+from autotest_price.price_android.price_page.my.toolbox import FourStepCarSelection
+from autotest_price.price_android.price_page.my.toolbox import IllegalInquiry
+from autotest_price.price_android.price_page.my.toolbox import LicenseScoring
+from autotest_price.price_android.price_page.my.toolbox import LocalCarMarket
+from autotest_price.price_android.price_page.my.toolbox import LotteryQuery
+from autotest_price.price_android.price_page.my.toolbox import ModelComparison
+from autotest_price.price_android.price_page.my.toolbox import NearbyDealers
 from autotest_price.price_android.price_page.my.toolbox.new_car import NewCar
 from autotest_price.price_android.price_page.my.toolbox.price_cut_ranking import PriceCutRanking
-from autotest_price.price_android.price_page.my.toolbox.sales_ranking import SalesRanking
-from autotest_price.price_android.price_page.my.toolbox.second_hand_car import SecondHandCar
-from autotest_price.price_android.price_page.my.toolbox.sell_car import SellCar
-from autotest_price.price_android.price_page.my.toolbox.take_photos import TakePhotos
-from autotest_price.price_android.price_page.my.toolbox.travel_reminder import TravelReminder
+from autotest_price.price_android.price_page.my.toolbox import SalesRanking
+from autotest_price.price_android.price_page.my.toolbox import SecondHandCar
+from autotest_price.price_android.price_page.my.toolbox import SellCar
+from autotest_price.price_android.price_page.my.toolbox import TakePhotos
+from autotest_price.price_android.price_page.my.toolbox import TravelReminder
 
 
 class ToolBoxMore(BasePage):
