@@ -1,0 +1,112 @@
+from autotest_price.price_android.price_page.app import App
+
+
+class TestBroascast:
+    def setup_class(self):
+        self.app = App()
+        self.main = self.app.start().found().goto_live_broadcast()
+
+    def setup(self):
+        pass
+
+    def teardown_class(self):
+        self.app.base_quit()
+
+    def teardown(self):
+        # self.app.back()
+        pass
+
+    # 直播
+    def test_broadcast(self):
+        sale_name, sale = self.main.broadcast()
+        assert sale_name == sale
+
+    # 直播-评论
+    def test_broadcast_comment(self):
+        msg = self.main.broadcast_comment()
+        assert msg == "评论成功，已进入审核"
+
+    # 直播-相关车型-询底价
+    def test_broadcast_car_ask_price(self):
+        btn = self.main.broadcast_car_ask_price()
+        assert btn == "获取底价"
+
+    # 直播-相关车型
+    def test_broadcast_car(self):
+        car_name, brand_name = self.main.broadcast_car()
+        assert car_name == brand_name
+
+    # 直播-相关车型-经销商
+    def test_broadcast_car_dealer(self):
+        dealer_name, dealer_name_detail = self.main.broadcast_car_dealer()
+        assert dealer_name == dealer_name_detail
+
+    # 直播-点赞
+    def test_broadcast_like(self):
+        count, count_liked = self.main.broadcast_like()
+        assert count_liked == count+1
+
+    # 直播-分享
+    def test_broadcast_share(self):
+        weixin = self.main.broadcast_share()
+        assert weixin == "微信好友"
+
+    # 预告
+    def test_advance_notice(self):
+        sale_name, sale_name_detail = self.main.advance_notice()
+        assert sale_name == sale_name_detail
+
+    # 预告-预约直播
+    def test_advance_notice_appointment(self):
+        count, count_appointed = self.main.advance_notice_appointment()
+        assert count_appointed == count+1
+
+    # 重播
+    def test_reply(self):
+        sale_name, sale_name_detail = self.main.reply()
+        assert sale_name == sale_name_detail
+
+    # 进入报价大全tab
+    def test_goto_price_app(self):
+        live_title, zb_title = self.main.goto_price_app()
+        assert live_title == zb_title
+
+    # 进入报价大全tab-关注
+    def test_goto_price_app_follow(self):
+        msg = self.main.goto_price_app_follow()
+        assert msg == "已关注"
+
+    # 进入报价大全tab-主播主页
+    def test_goto_price_app_anchor(self):
+        username, title = self.main.goto_price_app_anchor()
+        assert username == title
+
+    # 进入报价大全tab-评论
+    def test_goto_price_app_comment(self):
+        comment, content = self.main.goto_price_app_comment()
+        assert comment in content
+
+    # 品牌直播
+    def test_brand(self):
+        sale, sale_name = self.main.brand()
+        assert sale == sale_name
+
+    # 选车
+    def test_select_car(self):
+        title, title_detail = self.main.brand()
+        assert title == title_detail
+
+    # 新车
+    def test_new_car(self):
+        sale, sale_name = self.main.new_car()
+        assert sale == sale_name
+
+    # 活动
+    def test_activity(self):
+        sale, sale_name = self.main.activity()
+        assert sale == sale_name
+
+    # 经销商直播
+    def test_dealers(self):
+        title, title_detail = self.main.dealers()
+        assert title == title_detail
