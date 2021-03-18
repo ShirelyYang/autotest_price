@@ -1,0 +1,14 @@
+my:
+  - by: id
+  - locator: bottom_button05
+  - action: click
+
+more:
+  - by: xpath
+  - locator: '//*[@text="更多"]'
+  - action: click
+
+cal:
+  - by: id
+  - locator: carNameTxt
+  - action: click
