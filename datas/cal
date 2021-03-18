@@ -1,0 +1,8 @@
+cal:
+  - by: id
+  - locator: searchEdtTxt
+  - action: click
+  - by: id
+  - locator: searchEt
+  - action: send
+  - value: {}
